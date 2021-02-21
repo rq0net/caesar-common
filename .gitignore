@@ -134,3 +134,4 @@ dmypy.json
 #pycharm
 .idea.travis.yml
 .project
+.travis.yml
