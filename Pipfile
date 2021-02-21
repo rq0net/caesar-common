@@ -1,0 +1,38 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pytz = "==2020.4"
+utils2devops = ">=0.1.4"
+psycopg2-binary = "~=2.8.5"
+djangorestframework = "~=3.12.2"
+django-filter = "~=2.4.0"
+six = "~=1.15.0"
+django-rest-auth = "==0.9.5"
+certifi = "~=2020.11.8"
+coreschema = "==0.0.4"
+itypes = "~=1.2.0"
+uritemplate = "~=3.0.1"
+coreapi = "~=2.3.3"
+requests = ">=2.24.0"
+python-dotenv = "~=0.15.0"
+django-debug-toolbar = "==3.2"
+django-slack = "~=5.16.0"
+python-telegram-bot = "~=13.1"
+Django = "~=3.1.4"
+uWSGI = ">=2.0.19"
+django-jsoneditor = {ref = "108bc86b134bc926fa584064a132b5be1640cb5c", git = "https://github.com/martn/django-jsoneditor"}
+django-keycloak = {ref = "b213c29", git = "https://github.com/rq0net/django-keycloak"}
+caesar-user = {ref = "8bbbe47", git = "https://github.com/rq0net/caesar-user"}
+django-ajax-selects = {ref = "1c4c7f8", git = "https://github.com/rq0net/django-ajax-selects"}
+celery = "~=5.0.5"
+redis = "~=3.5.3"
+django-celery-results = "~=2.0.1"
+django-better-admin-arrayfield = "~=1.4.2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
