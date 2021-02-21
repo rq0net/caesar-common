@@ -24,7 +24,7 @@ class ZoneProfile(ABC):
         return str(uid).split("-")[0]
 
     @classmethod
-    def get_realm_name(user):
+    def get_realm_name(cls, user):
         realm = None
         try:
             if isinstance(user, str) or len(str(user)) == 36:
