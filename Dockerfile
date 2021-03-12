@@ -1,13 +1,9 @@
 #
-# The doc: https://docs.docker.com/engine/reference/builder/#usage
-# Dockerfile-ceser-subscription
-# Help from: https://www.eidel.io/2017/07/10/dockerizing-django-uwsgi-postgres/
-#
 
-FROM rq0net/p3d2-alpine
+FROM rq0net/p3d2-alpine:pipenv
 
-RUN apk --no-cache add curl
+EXPOSE 9000
 
-EXPOSE 3000
+WORKDIR /app
 
-CMD ["uwsgi", "--ini", "/app/common.ini"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "9000", "common.asgi:application"]
