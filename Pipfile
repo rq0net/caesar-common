@@ -13,7 +13,6 @@ six = "~=1.15.0"
 django-rest-auth = "~=0.9.5"
 coreapi = "~=2.3.3"
 requests = ">=2.25.1"
-uwsgi = ">=2.0.19"
 python-dotenv = "~=0.15.0"
 django-slack = "~=5.16.0"
 python-telegram-bot = "~=13.3"
@@ -25,6 +24,11 @@ Twisted = "~=21.2.0"
 cryptography = "~=3.3.2"
 pyasn1 = "~=0.4.8"
 autobahn = "==21.2.1"
+django-jsoneditor = {ref = "108bc86b134bc926fa584064a132b5be1640cb5c", git = "https://github.com/martn/django-jsoneditor"}
+django-keycloak = {ref = "e6fb900", git = "https://github.com/rq0net/django-keycloak"}
+caesar-user = {ref = "8bbbe47", git = "https://github.com/rq0net/caesar-user"}
+django-ajax-selects = {ref = "1c4c7f8", git = "https://github.com/rq0net/django-ajax-selects"}
+uWSGI = ">=2.0.19"
 
 [dev-packages]
 django-debug-toolbar = "==3.2"
