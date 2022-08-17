@@ -372,9 +372,9 @@ INSTALLED_APPS += ["django_slack",]
 SLACK_TOKEN=os.environ.get("SLACK_TOKEN", None)
 SLACK_CHANNEL=os.environ.get("SLACK_CHANNEL", '#test')
 
-PUSHER_SERVER = os.getenv('PUSHER_SERVER', "https://api.kqcdn.com/api/v1/pusher/")
-CMDB_SERVER = os.getenv('CMDB_SERVER', "https://api.kqcdn.com/api/v1/cmdb/")
-PLAN_SERVER = os.getenv('PLAN_SERVER', "https://api.kqcdn.com/api/v1/plan/")
+PUSHER_SERVER = os.getenv('PUSHER_SERVER', "https://api.cwcdn.com/api/v1/pusher/")
+CMDB_SERVER = os.getenv('CMDB_SERVER', "https://api.cwcdn.com/api/v1/cmdb/")
+PLAN_SERVER = os.getenv('PLAN_SERVER', "https://api.cwcdn.com/api/v1/plan/")
 
 
 ALIYUN = {
