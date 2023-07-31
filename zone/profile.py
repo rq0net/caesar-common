@@ -53,7 +53,10 @@ class ZoneProfile(ABC):
     @classmethod
     def try_cluster(cls, user):
         realm = cls.get_realm_name(user)
-        czone = Czone.objects.get(realm=realm)
+        try:
+            czone = Czone.objects.get(realm=realm)
+        except Czone.DoesNotExist:
+            return ""
         return czone.cluster
 #         if UserProfile.get_realm_name(user) == "ujcdn":
 #             cluster = Cluster.defaultiowa
