@@ -29,6 +29,8 @@ django-keycloak = {ref = "e6fb900", git = "https://github.com/rq0net/django-keyc
 caesar-user = {ref = "8bbbe47", git = "https://github.com/rq0net/caesar-user"}
 django-ajax-selects = {ref = "1c4c7f8", git = "https://github.com/rq0net/django-ajax-selects"}
 uWSGI = ">=2.0.19"
+elasticsearch-dsl = "==8.14.0"
+django-elasticsearch-dsl= "==8.0"
 
 [dev-packages]
 django-debug-toolbar = "==3.2"
