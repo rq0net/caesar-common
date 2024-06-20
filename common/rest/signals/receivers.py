@@ -34,55 +34,56 @@ def capture_old_values(sender, instance, **kwargs):
 @receiver(post_save)
 def track_changes(sender, instance, created, **kwargs):
     current_context = get_current_request()
-    request = current_context['request']
-    hostname = request.headers.get('Origin') if request else 'Unknown'
-    api_endpoint = request.path if request else 'Unknown'
-    ip_address = current_context['ip_address'] if request else 'Unknown'
-    user = request.user.email if request and request.user.is_authenticated and request.user.email else 'Anonymous'
-    request_id= current_context['request_id'] if request else None
+    if 'request' in current_context:
+        request = current_context['request']
+        hostname = request.headers.get('Origin') if request else 'Unknown'
+        api_endpoint = request.path if request else 'Unknown'
+        ip_address = current_context['ip_address'] if request else 'Unknown'
+        user = request.user.email if request and request.user.is_authenticated and request.user.email else 'Anonymous'
+        request_id= current_context['request_id'] if request else None
 
-    change_type = CHANGE_LOG_CREATE if created else CHANGE_LOG_UPDATE
+        change_type = CHANGE_LOG_CREATE if created else CHANGE_LOG_UPDATE
 
-    field_names = [field.name for field in sender._meta.get_fields()]
+        field_names = [field.name for field in sender._meta.get_fields()]
 
-    # Initialize the index
-    ChangeLogDocument.init(using=client)
+        # Initialize the index
+        ChangeLogDocument.init(using=client)
 
-    # Create a list of documents to be indexed
-    documents = []
-    for field_name in field_names:
-        old_value = getattr(instance, f"old_{field_name}", None)
-        new_value = getattr(instance, field_name, None)
-        if old_value != new_value:
-            documents.append(
-                ChangeLogDocument(
-                    request_id=request_id,
-                    model_name=sender.__name__,
-                    instance_id=instance.pk,
-                    field_name=field_name,
-                    old_value=str(old_value),
-                    new_value=str(new_value),
-                    type=change_type,
-                    timestamp=timezone.now(),
-                    hostname=hostname,
-                    api_endpoint=api_endpoint,
-                    user=user,
-                    ip_address=ip_address
+        # Create a list of documents to be indexed
+        documents = []
+        for field_name in field_names:
+            old_value = getattr(instance, f"old_{field_name}", None)
+            new_value = getattr(instance, field_name, None)
+            if old_value != new_value:
+                documents.append(
+                    ChangeLogDocument(
+                        request_id=request_id,
+                        model_name=sender.__name__,
+                        instance_id=instance.pk,
+                        field_name=field_name,
+                        old_value=str(old_value),
+                        new_value=str(new_value),
+                        type=change_type,
+                        timestamp=timezone.now(),
+                        hostname=hostname,
+                        api_endpoint=api_endpoint,
+                        user=user,
+                        ip_address=ip_address
+                    )
                 )
-            )
 
-    # Convert documents to the format required by the bulk helper
-    if documents:
-        actions = [
-            {
-                "_index": ChangeLogDocument._index._name,  # Ensure the index name is included
-                "_source": doc.to_dict()
-            }
-            for doc in documents
-        ]
+        # Convert documents to the format required by the bulk helper
+        if documents:
+            actions = [
+                {
+                    "_index": ChangeLogDocument._index._name,  # Ensure the index name is included
+                    "_source": doc.to_dict()
+                }
+                for doc in documents
+            ]
 
-        # Use the bulk helper to index documents
-        try:
-            bulk(client, actions)
-        except BulkIndexError as e:
-            pass
+            # Use the bulk helper to index documents
+            try:
+                bulk(client, actions)
+            except BulkIndexError as e:
+                pass
