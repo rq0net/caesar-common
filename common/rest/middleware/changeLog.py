@@ -42,6 +42,4 @@ class ChangeLogMiddleware:
         # Pass the original request object to the next middleware or view
         response = self.get_response(request)
 
-        # Ensure to unset or clear the context if necessary after processing the request
-
         return response

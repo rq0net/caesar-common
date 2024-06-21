@@ -8,6 +8,7 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from common.rest.document import ChangeLogDocument
 from elasticsearch.helpers import BulkIndexError
+from django.apps import apps
 
 
 client = Elasticsearch(
@@ -21,6 +22,9 @@ CHANGE_LOG_UPDATE = "update"
 
 @receiver(pre_save)
 def capture_old_values(sender, instance, **kwargs):
+    if sender.__name__ == 'User':
+        return
+
     if instance.pk:
         try:
             old_instance = sender.objects.get(pk=instance.pk)
@@ -33,7 +37,13 @@ def capture_old_values(sender, instance, **kwargs):
 
 @receiver(post_save)
 def track_changes(sender, instance, created, **kwargs):
+    if sender.__name__ == 'User':
+        return
+
     current_context = get_current_request()
+    if not current_context:
+        return
+
     request_id = current_context.get('request_id', None)
     ip_address = current_context.get('ip_address', 'Unknown')
 
