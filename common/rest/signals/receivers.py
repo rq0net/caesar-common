@@ -8,7 +8,6 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from common.rest.document import ChangeLogDocument
 from elasticsearch.helpers import BulkIndexError
-from django.apps import apps
 
 
 client = Elasticsearch(
