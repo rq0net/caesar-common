@@ -8,6 +8,7 @@ from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from common.rest.document import ChangeLogDocument
 from elasticsearch.helpers import BulkIndexError
+from django.apps import apps
 
 
 client = Elasticsearch(
@@ -18,16 +19,24 @@ client = Elasticsearch(
 CHANGE_LOG_CREATE = "create"
 CHANGE_LOG_UPDATE = "update"
 
+def skip_agent_model(sender):
+    return sender._meta.model_name == 'agent'
+
+def skip_agent_related_fields(field):
+    return field.related_model and field.related_model._meta.model_name == 'agent'
 
 @receiver(pre_save)
 def capture_old_values(sender, instance, **kwargs):
-    if sender.__name__ == 'User':
+
+    if skip_agent_model(sender):
         return
 
     if instance.pk:
         try:
             old_instance = sender.objects.get(pk=instance.pk)
             for field in instance._meta.fields:
+                if skip_agent_related_fields(field):
+                    continue
                 old_value = getattr(old_instance, field.attname)
                 setattr(instance, f"old_{field.attname}", old_value)
         except sender.DoesNotExist:
@@ -36,13 +45,14 @@ def capture_old_values(sender, instance, **kwargs):
 
 @receiver(post_save)
 def track_changes(sender, instance, created, **kwargs):
-    if sender.__name__ == 'User':
+
+    if skip_agent_model(sender):
         return
 
     current_context = get_current_request()
     if not current_context:
         return
-
+    
     request_id = current_context.get('request_id', None)
     ip_address = current_context.get('ip_address', 'Unknown')
 
@@ -57,6 +67,7 @@ def track_changes(sender, instance, created, **kwargs):
     if request:
         hostname = request.headers.get('Origin', 'Unknown')
         api_endpoint = request.path
+
         if request.user.is_authenticated:
             user = request.user.email
 
@@ -64,6 +75,10 @@ def track_changes(sender, instance, created, **kwargs):
 
         documents = []
         for field_name in field_names:
+
+            if skip_agent_related_fields(sender._meta.get_field(field_name)):
+                continue
+
             old_value = getattr(instance, f"old_{field_name}", None)
             new_value = getattr(instance, field_name, None)
             if old_value != new_value:
