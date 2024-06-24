@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.conf import settings
 from common.rest.middleware.changeLog import get_current_request
 from elasticsearch import Elasticsearch
-from common.config.celery_app import app
+from common.celery_app import app
 
 
 CHANGE_LOG_CREATE = "create"

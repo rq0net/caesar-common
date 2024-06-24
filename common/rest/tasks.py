@@ -1,11 +1,11 @@
-from celery import shared_task
+from celery import current_app
 from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 from common.rest.document import ChangeLogDocument
 from elasticsearch.helpers import BulkIndexError
 from django.utils import timezone
 from django.conf import settings
-from common.config.celery_app import app
+from common.celery_app import app
 
 client = Elasticsearch(
     hosts=[settings.ELASTICSEARCH_API_HOST],
