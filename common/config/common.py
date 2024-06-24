@@ -93,6 +93,23 @@ INTERNAL_IPS = [
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+#Redis
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis-master')
+REDIS_HOST_ASGI = os.getenv('REDIS_HOST_ASGI', 'redis-master')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'hZg7kXzvPN')
+REDIS_PASSWORD_ASGI = os.getenv('REDIS_PASSWORD_ASGI', 'hZg7kXzvPN')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_DATABASE = os.getenv('REDIS_DATABASE', '1')
+REDIS_DATABASE_CELERY = os.getenv('REDIS_DATABASE_CELERY', '0')
+REDIS_DATABASE_IP_BLOCK = os.getenv('REDIS_DATABASE_IP_BLOCK', '15')
+CELERY_BROKER_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DATABASE_CELERY}'
+
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_DEFAULT_QUEUE = 'celery'
+
 ADMINS = (
     ('Author', 'rq0net@gmail.com'),
 )

@@ -3,17 +3,9 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.conf import settings
 from common.rest.middleware.changeLog import get_current_request
-
-from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
-from common.rest.document import ChangeLogDocument
-from elasticsearch.helpers import BulkIndexError
+from common.config.celery_app import app
 
-
-client = Elasticsearch(
-    hosts=[settings.ELASTICSEARCH_API_HOST],
-    api_key=settings.ELASTICSEARCH_API_KEY
-)
 
 CHANGE_LOG_CREATE = "create"
 CHANGE_LOG_UPDATE = "update"
@@ -44,7 +36,6 @@ def capture_old_values(sender, instance, **kwargs):
 
 @receiver(post_save)
 def track_changes(sender, instance, created, **kwargs):
-
     if skip_agent_model(sender):
         return
 
@@ -70,44 +61,35 @@ def track_changes(sender, instance, created, **kwargs):
         if request.user.is_authenticated:
             user = request.user.email
 
-        field_names = [field.name for field in sender._meta.get_fields()]
+    # Collect data to send to the Celery task
+    change_log_data = {
+        'request_id': request_id,
+        'model_name': sender.__name__,
+        'instance_id': instance.pk,
+        'change_type': change_type,
+        'timestamp': timezone.now().isoformat(),
+        'hostname': hostname,
+        'api_endpoint': api_endpoint,
+        'user': user,
+        'ip_address': ip_address,
+        'field_changes': []
+    }
 
-        documents = []
-        for field_name in field_names:
+    field_names = [field.name for field in sender._meta.get_fields()]
 
-            if skip_agent_related_fields(sender._meta.get_field(field_name)):
-                continue
+    for field_name in field_names:
+        if skip_agent_related_fields(sender._meta.get_field(field_name)):
+            continue
 
-            old_value = getattr(instance, f"old_{field_name}", None)
-            new_value = getattr(instance, field_name, None)
-            if old_value != new_value:
-                documents.append(
-                    ChangeLogDocument(
-                        request_id=request_id,
-                        model_name=sender.__name__,
-                        instance_id=instance.pk,
-                        field_name=field_name,
-                        old_value=str(old_value),
-                        new_value=str(new_value),
-                        type=change_type,
-                        timestamp=timezone.now(),
-                        hostname=hostname,
-                        api_endpoint=api_endpoint,
-                        user=user,
-                        ip_address=ip_address
-                    )
-                )
+        old_value = getattr(instance, f"old_{field_name}", None)
+        new_value = getattr(instance, field_name, None)
+        if old_value != new_value:
+            change_log_data['field_changes'].append({
+                'field_name': field_name,
+                'old_value': str(old_value),
+                'new_value': str(new_value)
+            })
 
-        if documents:
-            actions = [
-                {
-                    "_index": ChangeLogDocument._index._name,
-                    "_source": doc.to_dict()
-                }
-                for doc in documents
-            ]
-
-            try:
-                bulk(client, actions)
-            except BulkIndexError as e:
-                pass
+    # Trigger the Celery task
+    if change_log_data['field_changes']:
+        app.send_task('common.track_changes', kwargs={'change_log_data': change_log_data})
