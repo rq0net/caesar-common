@@ -1,0 +1,6 @@
+/pusher_secret.json
+env.yaml
+beat.yaml
+tgbot.yaml
+worker.yaml
+worker-hipri.yaml

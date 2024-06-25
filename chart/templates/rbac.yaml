@@ -1,0 +1,27 @@
+# rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "django.fullname" . }}-rbac
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "django.fullname" . }}
+rules:
+  - apiGroups: ["", "batch"]
+    resources: ["jobs"]
+    verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "django.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "django.fullname" . }}
+roleRef:
+  kind: Role
+  name: {{ include "django.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+  

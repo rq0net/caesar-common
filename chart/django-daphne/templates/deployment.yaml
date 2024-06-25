@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "django.fullname" . }}
+  labels:
+    {{- include "django.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "django.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "django.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "django.fullname" . }}-sites-enabled-configmap
+        - name: staticfiles
+          emptyDir: {}
+      serviceAccountName: {{ include "django.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          command: ["python3", "manage.py", "migrate"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+        # USE THIS BLOCK IF YOU CONFIGURED A JOB FOR COLLECTING STATIC FILES          
+        # - name: wait-for-collectstatic
+        #   image: lachlanevenson/k8s-kubectl:v1.12.4
+        #   imagePullPolicy: IfNotPresent
+        #   command:
+        #     - "kubectl"
+        #     - "get"
+        #     - "jobs"
+        #     - {{ include "django.fullname" . }}-collectstatic-job
+        #     - "-o"
+        #     - jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep True ; do sleep 1 ; done
+        # USE THIS BLOCK IF YOU'RE USING LOCAL STATIC FILES   
+        - name: collectstatic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          command: ["python3", "manage.py", "collectstatic", "--noinput"]
+          volumeMounts:
+            - name: staticfiles
+              mountPath: /var/www/html/
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+      containers:
+        - name: nginx
+          image: nginx:stable
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/
+            - name: staticfiles # only necessary if serving staticfiles locally
+              mountPath: /var/www/html/
+#           readinessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: 8000
+#             initialDelaySeconds: 10
+#             periodSeconds: 10
+#           livenessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: 8000
+#             initialDelaySeconds: 10
+#             periodSeconds: 10
+#             failureThreshold: 10
+          resources:
+            requests:
+              cpu: 10m
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: daphne
+              containerPort: 9000
+              protocol: TCP
+#           livenessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: daphne
+#           readinessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: daphne
+#             initialDelaySeconds: 5
+#             timeoutSeconds: 30
+#             failureThreshold: 10
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

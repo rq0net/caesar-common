@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  {{ include "django.fullname" . }}-config
+  labels:
+    app.kubernetes.io/name: {{ include "django.name" . }}
+    helm.sh/chart: {{ include "django.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  {{- if .Values.config }}
+  SECRET_KEY: "{{ .Values.config.secret_key }}"
+  ENABLE_DEBUG: "{{ .Values.config.debug }}"
+  {{- end }}
+
+  {{- if .Values.db }}
+  POSTGRESQL_DB_HOST: {{ default "postgresql" .Values.db.db_host }}
+  POSTGRESQL_DB_PORT: "{{ default 5432 .Values.db.db_port }}"
+  POSTGRESQL_DB_USER: {{ .Values.db.db_user }}
+  POSTGRESQL_DB_PASS: "{{ .Values.db.db_password }}"
+  POSTGRESQL_DB_NAME: {{ default "user_database" .Values.db.db_database }}
+  {{- end }}
+
+  {{- with .Values.env }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
+
+  STATIC_ROOT: "{{ default "/var/www/html/static/" .Values.config.STATIC_ROOT }}"
+  
+
+  

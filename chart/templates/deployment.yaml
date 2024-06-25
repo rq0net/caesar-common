@@ -1,0 +1,200 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "django.fullname" . }}
+  labels:
+    {{- include "django.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "django.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "django.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "django.fullname" . }}-sites-enabled-configmap
+        - name: staticfiles
+          emptyDir: {}
+      serviceAccountName: {{ include "django.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- if .Values.nginx.enabled }}
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          command: ["python3", "manage.py", "migrate"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+        - name: collectstatic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          command: ["python3", "manage.py", "collectstatic", "--noinput"]
+          volumeMounts:
+            - name: staticfiles
+              mountPath: /var/www/html/
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+        {{- end }}
+      containers:
+        {{- if .Values.nginx.enabled }}
+        - name: nginx
+          image: nginx:stable
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/
+            - name: staticfiles # only necessary if serving staticfiles locally
+              mountPath: /var/www/html/
+          readinessProbe:
+            httpGet:
+              path: /icinga/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /icinga/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: 10m
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+#           livenessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: http
+#           readinessProbe:
+#             httpGet:
+#               path: /icinga/
+#               port: http
+#             initialDelaySeconds: 60
+#             periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
+#             timeoutSeconds: 30
+#             failureThreshold: 5
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        {{- if .Values.celerypy.enabled }}
+        - name: "{{ .Chart.Name }}"
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ['celery']
+          args:
+            {{ range .Values.deployment.args }}
+              - {{ . }}
+            {{ end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{ if eq .Values.celerypy.role "worker" }}
+          livenessProbe:
+              exec:
+                # bash is needed to replace the environment variable
+                command: [
+                  "sh",
+                  "-c",
+                  "celery -A plan inspect ping -d celery@$HOSTNAME"
+                ]
+              initialDelaySeconds: 60  # startup takes some time
+              periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
+              timeoutSeconds: 30  # default is too low
+          {{ end }}
+          {{ if eq .Values.celerypy.role "beat" }}
+          livenessProbe:
+              exec:
+                # bash is needed to replace the environment variable
+                command: [
+                  "sh",
+                  "-c",
+                  "celery -A plan status | grep -o ': OK'"
+                ]
+              initialDelaySeconds: 60  # startup takes some time
+              periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
+              timeoutSeconds: 30  # default is too low
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" . }}-config
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{ end }}
+
+        
+        {{- range .Values.commands }}
+        - name: "{{ .name }}"
+          securityContext:
+            {{- toYaml $.Values.podSecurityContext | nindent 12 }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            {{- toYaml .command | nindent 12 }}
+          args:
+            {{- range .args }}
+              - {{ . }}
+            {{- end }}
+          {{- if .livenessProbe }}
+          livenessProbe:
+              exec:
+                command: 
+                {{- range .livenessProbe.command }}
+                  - {{ . }}
+                {{- end }}
+              initialDelaySeconds: 60  # startup takes some time
+              periodSeconds: 3600  # default is quite often and celery uses a lot cpu/ram then.
+              timeoutSeconds: 60  # default is too low
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "django.fullname" $ }}-config
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+        {{- end }}
+        
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
