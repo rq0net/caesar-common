@@ -12,6 +12,9 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 
 class TGUser(models.Model):
+    class Meta:
+        db_table = 'common_tguser'
+
     name = models.TextField(unique=True, blank=True, null=True)
     value = models.TextField(default="", null=False)
 
