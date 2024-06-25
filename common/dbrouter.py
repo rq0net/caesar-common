@@ -3,7 +3,7 @@ class AuthRouter:
     A router to control all database operations on models in the
     auth and contenttypes applications.
     """
-    route_app_labels = {'auth', 'admin', 'zone', 'authtoken', 'sessions', 'contenttypes',  'django_keycloak', 'django_celery_results'}
+    route_app_labels = {'auth', 'admin', 'zone', 'authtoken', 'sessions', 'contenttypes',  'django_keycloak', 'django_celery_results', 'common'}
 
     def db_for_read(self, model, **hints):
         """
