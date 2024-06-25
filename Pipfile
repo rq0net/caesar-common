@@ -31,6 +31,7 @@ django-ajax-selects = {ref = "1c4c7f8", git = "https://github.com/rq0net/django-
 uWSGI = ">=2.0.19"
 elasticsearch-dsl = "==8.14.0"
 django-elasticsearch-dsl= "==8.0"
+django-celery-results = "~=2.0.1"
 
 [dev-packages]
 django-debug-toolbar = "==3.2"
