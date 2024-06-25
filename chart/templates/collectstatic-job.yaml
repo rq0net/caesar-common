@@ -2,14 +2,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "django.fullname" . }}-collectstatic-job
+  name: {{ include "celery.fullname" . }}-collectstatic-job
   labels:
-    app.kubernetes.io/name: {{ include "django.fullname" . }}
-    helm.sh/chart: {{ include "django.chart" . }}
+    app.kubernetes.io/name: {{ include "celery.fullname" . }}
+    helm.sh/chart: {{ include "celery.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  ttlSecondsAfterFinished: 60
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       containers:
@@ -19,6 +19,6 @@ spec:
         command: ['python3', 'manage.py', 'collectstatic', '--noinput', '--ignore', 'node_modules']
         envFrom:
           - configMapRef:
-              name: {{ include "django.fullname" . }}-config
+              name: {{ include "celery.fullname" . }}-config
       restartPolicy: Never
   backoffLimit: 4

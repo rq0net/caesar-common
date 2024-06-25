@@ -2,29 +2,29 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "django.fullname" . }}
+  name: {{ include "celery.fullname" . }}
   labels:
-    {{- include "django.labels" . | nindent 4 }}
+    {{- include "celery.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "django.fullname" . }}
+    name: {{ include "celery.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 300
-      policies:
-      - type: Pods
-        value: 1
-        periodSeconds: 15
-    scaleDown:
-      stabilizationWindowSeconds: 300
-      policies:
-      - type: Pods
-        value: 1
-        periodSeconds: 15
+  scaleUp:
+    stabilizationWindowSeconds: 300
+    policies:
+    - type: Pods
+      value: 1
+      periodSeconds: 15
+  scaleDown:
+    stabilizationWindowSeconds: 300
+    policies:
+    - type: Pods
+      value: 1
+      periodSeconds: 15
   metrics:
   {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource

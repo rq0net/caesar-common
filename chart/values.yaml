@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+replicaCount: 3
 
 image:
   repository: asia.gcr.io/caesar-276112/common
@@ -46,7 +46,7 @@ config: {}
 nginx:
   enabled: false
   listenPort: 8000
-  hosts: 
+  hosts:
     - localhost
 
 celerypy:
@@ -69,8 +69,6 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
-commands: []
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -96,3 +94,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+cronjob:
+  monitors: {}

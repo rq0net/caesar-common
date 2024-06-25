@@ -1,0 +1,31 @@
+{{- range $job, $val := .Values.cronjob.monitors }}
+apiVersion: batch/v1beta1
+kind: CronJob
+
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- include "celery.labels" $ | nindent 4 }}
+spec:
+  schedule: {{ .schedule | quote}}
+  successfulJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ .name }}
+            image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            command:
+            - /bin/sh
+            - -c
+            - sleep 2s; python3 manage.py monitor {{ .cluster }} sync; sleep 60s;
+            envFrom:
+            - configMapRef:
+                name: {{ include "celery.fullname" $ }}-config
+          restartPolicy: Never
+
+---
+{{- end}}

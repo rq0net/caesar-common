@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "django.fullname" . }}
+  name: {{ include "celery.fullname" . }}
   labels:
-    {{- include "django.labels" . | nindent 4 }}
+    {{- include "celery.labels" . | nindent 4 }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}
   selector:
     matchLabels:
-      {{- include "django.selectorLabels" . | nindent 6 }}
+      {{- include "celery.selectorLabels" . | nindent 6 }}
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        {{- include "django.selectorLabels" . | nindent 8 }}
+        {{- include "celery.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -27,10 +27,13 @@ spec:
       volumes:
         - name: nginx-conf
           configMap:
-            name: {{ include "django.fullname" . }}-sites-enabled-configmap
+            name: {{ include "celery.fullname" . }}-sites-enabled-configmap
         - name: staticfiles
           emptyDir: {}
-      serviceAccountName: {{ include "django.serviceAccountName" . }}
+        - name: pusher-celery-worker-vault
+          persistentVolumeClaim:
+            claimName: "pusher-celery-worker-vault"
+      serviceAccountName: {{ include "celery.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -41,7 +44,7 @@ spec:
           command: ["python3", "manage.py", "migrate"]
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
         - name: collectstatic
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
@@ -51,7 +54,7 @@ spec:
               mountPath: /var/www/html/
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
         {{- end }}
       containers:
         {{- if .Values.nginx.enabled }}
@@ -105,18 +108,21 @@ spec:
 #             periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
 #             timeoutSeconds: 30
 #             failureThreshold: 5
+          volumeMounts:
+            - name: pusher-celery-worker-vault
+              mountPath: /vault/secrets/
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
         {{- if .Values.celerypy.enabled }}
-        - name: "{{ .Chart.Name }}"
+        - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command: ['celery']
+          command: ['/entrypoint', 'celery']
           args:
             {{ range .Values.deployment.args }}
               - {{ . }}
@@ -129,11 +135,11 @@ spec:
                 command: [
                   "sh",
                   "-c",
-                  "celery -A plan inspect ping -d celery@$HOSTNAME"
+                  "celery -A pusher inspect ping -d celery@$HOSTNAME"
                 ]
-              initialDelaySeconds: 60  # startup takes some time
+              initialDelaySeconds: 30  # startup takes some time
               periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
-              timeoutSeconds: 30  # default is too low
+              timeoutSeconds: 10  # default is too low
           {{ end }}
           {{ if eq .Values.celerypy.role "beat" }}
           livenessProbe:
@@ -142,50 +148,21 @@ spec:
                 command: [
                   "sh",
                   "-c",
-                  "celery -A plan status | grep -o ': OK'"
+                  "celery -A pusher status | grep -o ': OK'"
                 ]
-              initialDelaySeconds: 60  # startup takes some time
+              initialDelaySeconds: 30  # startup takes some time
               periodSeconds: 60  # default is quite often and celery uses a lot cpu/ram then.
-              timeoutSeconds: 30  # default is too low
-          {{- end }}
+              timeoutSeconds: 10  # default is too low
+          {{ end }}
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
+          volumeMounts:
+            - name: pusher-celery-worker-vault
+              mountPath: /vault/secrets/
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{ end }}
-
-        
-        {{- range .Values.commands }}
-        - name: "{{ .name }}"
-          securityContext:
-            {{- toYaml $.Values.podSecurityContext | nindent 12 }}
-          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command:
-            {{- toYaml .command | nindent 12 }}
-          args:
-            {{- range .args }}
-              - {{ . }}
-            {{- end }}
-          {{- if .livenessProbe }}
-          livenessProbe:
-              exec:
-                command: 
-                {{- range .livenessProbe.command }}
-                  - {{ . }}
-                {{- end }}
-              initialDelaySeconds: 60  # startup takes some time
-              periodSeconds: 3600  # default is quite often and celery uses a lot cpu/ram then.
-              timeoutSeconds: 60  # default is too low
-          {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "django.fullname" $ }}-config
-          resources:
-            {{- toYaml $.Values.resources | nindent 12 }}
-        {{- end }}
-        
+      {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

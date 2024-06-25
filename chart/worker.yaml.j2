@@ -1,4 +1,4 @@
-fullnameOverride: "{{ KUBERNETES.COMMON_FULLNAME_OVERRIDE }}-worker"
+fullnameOverride: "{{ KUBERNETES.COMMON_FULLNAME_OVERRIDE }}-celery-worker"
 
 celerypy:
   enabled: true
@@ -6,11 +6,27 @@ celerypy:
   
 deployment:
   args: ['-A', 'common', 'worker', '-l', 'info', '-Q', 'common', '-c', '"10"']
+  
+cronjob:
+  monitors: []
+#     "0":
+#        name: monitor-hk-30-az
+#        cluster: hk-30-az
+#        schedule: "*/3 * * * *"
+#     "1":
+#        name: monitor-hk-31-az
+#        cluster: hk-31-az
+#        schedule: "*/7 * * * *"
+#     "2":
+#        name: monitor-hk-32-az
+#        cluster: hk-32-az
+#        schedule: "*/11 * * * *"
+#      
 
 resources:
   requests:
-    cpu: "100m"
-    memory: "1285Mi"
+    cpu: "200m"
+    memory: "2048Mi"
 
 autoscaling:
   enabled: true
