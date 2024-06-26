@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "django.fullname" . }}
+  name: {{ include "celery.fullname" . }}
   labels:
-    {{- include "django.labels" . | nindent 4 }}
+    {{- include "celery.labels" . | nindent 4 }}
 spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}
   selector:
     matchLabels:
-      {{- include "django.selectorLabels" . | nindent 6 }}
+      {{- include "celery.selectorLabels" . | nindent 6 }}
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        {{- include "django.selectorLabels" . | nindent 8 }}
+        {{- include "celery.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -27,10 +27,10 @@ spec:
       volumes:
         - name: nginx-conf
           configMap:
-            name: {{ include "django.fullname" . }}-sites-enabled-configmap
+            name: {{ include "celery.fullname" . }}-sites-enabled-configmap
         - name: staticfiles
           emptyDir: {}
-      serviceAccountName: {{ include "django.serviceAccountName" . }}
+      serviceAccountName: {{ include "celery.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -41,7 +41,7 @@ spec:
           command: ["python3", "manage.py", "migrate"]
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
         - name: collectstatic
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
@@ -51,7 +51,7 @@ spec:
               mountPath: /var/www/html/
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
         {{- end }}
       containers:
         {{- if .Values.nginx.enabled }}
@@ -107,7 +107,7 @@ spec:
 #             failureThreshold: 5
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
@@ -150,7 +150,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" . }}-config
+                name: {{ include "celery.fullname" . }}-config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{ end }}
@@ -181,7 +181,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "django.fullname" $ }}-config
+                name: {{ include "celery.fullname" $ }}-config
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
         {{- end }}
