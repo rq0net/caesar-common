@@ -10,4 +10,4 @@ EXPOSE 9000
 
 WORKDIR /app
 
-CMD ["daphne", "--application-close-timeout", "300", "-b", "0.0.0.0", "-p", "9000", "cdndomain.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "9000", "common.asgi:application"]
