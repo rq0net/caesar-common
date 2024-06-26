@@ -5,7 +5,7 @@
 #
 
 # FROM asia.gcr.io/project0215-10/p3d2:pipenv
-FROM FROM rq0net/p3d2-alpine:pipenv
+FROM rq0net/p3d2-alpine:pipenv
 
 EXPOSE 9000
 
