@@ -1,0 +1,24 @@
+# migrate-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "django.fullname" . }}-migrate-job
+  labels:
+    app.kubernetes.io/name: {{ include "django.fullname" . }}
+    helm.sh/chart: {{ include "django.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: IfNotPresent
+        command: ['python3', 'manage.py', 'migrate']
+        envFrom:
+          - configMapRef:
+              name: {{ include "django.fullname" . }}-config
+      restartPolicy: Never
+  backoffLimit: 4

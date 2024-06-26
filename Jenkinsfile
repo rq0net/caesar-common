@@ -6,7 +6,6 @@ import groovy.json.JsonSlurper
 def testPrompt = false // Flag for testing confirmation prompt
 def gcloudPrivateKey = "/.gcloud-config.json" // Path to Google Cloud Platform private key
 def helmChart = "./django-daphne" // Path to Helm chart for main deployment
-def helmCeleryChart = "." // Path to Helm chart for Celery deployment
 def cause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
 
 // Pipeline definition
@@ -113,26 +112,22 @@ pipeline {
       }
     }
 
-    // stage('Deploy to K8s') {
-    //   steps {
-    //     // Deploy Helm charts to Kubernetes cluster
-    //     container(name: 'helm', shell: '/bin/sh') {
-    //       script {
-    //         sh 'helm version'
+    stage('Deploy to K8s') {
+      steps {
+        // Deploy Helm charts to Kubernetes cluster
+        container(name: 'helm', shell: '/bin/sh') {
+          script {
+            sh 'helm version'
             
-    //         dir("chart") {
-    //           script {
-    //             sh "helm upgrade --install ${servicename} $helmChart -f ./env.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
-    //             sh "helm upgrade --install ${servicename}-celery-worker $helmCeleryChart -f ./env.yaml -f ./worker.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
-    //             sh "helm upgrade --install ${servicename}-celery-worker-hipri $helmCeleryChart -f ./env.yaml -f ./worker-hipri.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
-    //             sh "helm upgrade --install ${servicename}-celery-beat $helmCeleryChart -f ./env.yaml -f ./beat.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
-    //             sh "helm upgrade --install ${servicename}-tgbot $helmCeleryChart -f ./env.yaml -f ./tgbot.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
-    //           } 
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+            dir("chart") {
+              script {
+                sh "helm upgrade --install ${servicename} $helmChart -f ./env.yaml --set image.tag=${env.BUILD_NUMBER} --wait-for-jobs --wait"
+              } 
+            }
+          }
+        }
+      }
+    }
 
     // stage('Confirm') {
     //   steps {
