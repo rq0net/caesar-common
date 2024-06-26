@@ -93,6 +93,23 @@ INTERNAL_IPS = [
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+#Redis
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis-master')
+REDIS_HOST_ASGI = os.getenv('REDIS_HOST_ASGI', 'redis-master')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', 'hZg7kXzvPN')
+REDIS_PASSWORD_ASGI = os.getenv('REDIS_PASSWORD_ASGI', 'hZg7kXzvPN')
+REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+REDIS_DATABASE = os.getenv('REDIS_DATABASE', '1')
+REDIS_DATABASE_CELERY = os.getenv('REDIS_DATABASE_CELERY', '0')
+REDIS_DATABASE_IP_BLOCK = os.getenv('REDIS_DATABASE_IP_BLOCK', '15')
+CELERY_BROKER_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DATABASE_CELERY}'
+
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_DEFAULT_QUEUE = 'celery'
+
 ADMINS = (
     ('Author', 'rq0net@gmail.com'),
 )
@@ -148,6 +165,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "common.rest.middleware.changeLog.ChangeLogMiddleware"
 ]
 
 ROOT_URLCONF = '%s.urls' % APP_NAME.lower()
@@ -372,9 +390,9 @@ INSTALLED_APPS += ["django_slack",]
 SLACK_TOKEN=os.environ.get("SLACK_TOKEN", None)
 SLACK_CHANNEL=os.environ.get("SLACK_CHANNEL", '#test')
 
-PUSHER_SERVER = os.getenv('PUSHER_SERVER', "https://api.cwcdn.com/api/v1/pusher/")
-CMDB_SERVER = os.getenv('CMDB_SERVER', "https://api.cwcdn.com/api/v1/cmdb/")
-PLAN_SERVER = os.getenv('PLAN_SERVER', "https://api.cwcdn.com/api/v1/plan/")
+PUSHER_SERVER = os.getenv('PUSHER_SERVER', "https://api.suyuncdn.com/api/v1/pusher/")
+CMDB_SERVER = os.getenv('CMDB_SERVER', "https://api.suyuncdn.com/api/v1/cmdb/")
+PLAN_SERVER = os.getenv('PLAN_SERVER', "https://api.suyuncdn.com/api/v1/plan/")
 
 
 ALIYUN = {
@@ -406,4 +424,7 @@ TELEGRAMBOT = {
 INSTALLED_APPS += [
     'zone',
 ]
+
+ELASTICSEARCH_API_HOST=os.getenv('ELASTICSEARCH_API_HOST','')
+ELASTICSEARCH_API_KEY=os.getenv('ELASTICSEARCH_API_KEY','')
 

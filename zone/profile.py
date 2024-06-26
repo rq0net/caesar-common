@@ -14,10 +14,7 @@ class ZoneProfile(ABC):
     @classmethod
     def get_admin_url(cls, user):
         realm = cls.get_realm_name(user)
-        try:
-            czone = Czone.objects.get(realm=realm)
-        except Czone.DoesNotExist:
-            return ""
+        czone = Czone.objects.get(realm=realm)
         user_domain = czone.user_domain
 
         return "https://%s/auth/admin/master/console/#/realms/%s/users/%s" % (user_domain, realm, user)
@@ -53,10 +50,7 @@ class ZoneProfile(ABC):
     @classmethod
     def try_cluster(cls, user):
         realm = cls.get_realm_name(user)
-        try:
-            czone = Czone.objects.get(realm=realm)
-        except Czone.DoesNotExist:
-            return ""
+        czone = Czone.objects.get(realm=realm)
         return czone.cluster
 #         if UserProfile.get_realm_name(user) == "ujcdn":
 #             cluster = Cluster.defaultiowa
