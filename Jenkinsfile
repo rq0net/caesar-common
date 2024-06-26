@@ -40,20 +40,20 @@ pipeline {
         }
     }
 
-    // stage('Build Environment') { 
-    //     steps {
-    //       // Generate Kubernetes configuration files using Jinja2
-    //       container(name: 'jinja2') {
-    //         dir("chart") {
-    //           sh 'jinja2 --format=json beat.yaml.j2 /.caesar-env.json -o beat.yaml'
-    //           sh 'jinja2 --format=json env.yaml.j2 /.caesar-env.json -o env.yaml'
-    //           sh 'jinja2 --format=json tgbot.yaml.j2 /.caesar-env.json -o tgbot.yaml'
-    //           sh 'jinja2 --format=json worker-hipri.yaml.j2 /.caesar-env.json -o worker-hipri.yaml'
-    //           sh 'jinja2 --format=json worker.yaml.j2 /.caesar-env.json -o worker.yaml'
-    //         }
-    //       }
-    //     }
-    // }
+    stage('Build Environment') { 
+        steps {
+          // Generate Kubernetes configuration files using Jinja2
+          container(name: 'jinja2') {
+            dir("chart") {
+              // sh 'jinja2 --format=json beat.yaml.j2 /.caesar-env.json -o beat.yaml'
+              sh 'jinja2 --format=json env.yaml.j2 /.caesar-env.json -o env.yaml'
+              // sh 'jinja2 --format=json tgbot.yaml.j2 /.caesar-env.json -o tgbot.yaml'
+              // sh 'jinja2 --format=json worker-hipri.yaml.j2 /.caesar-env.json -o worker-hipri.yaml'
+              // sh 'jinja2 --format=json worker.yaml.j2 /.caesar-env.json -o worker.yaml'
+            }
+          }
+        }
+    }
 
     stage('SonarQube analysis') {
       steps {
