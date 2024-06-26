@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  ttlSecondsAfterFinished: 300
+  ttlSecondsAfterFinished: 60
   template:
     spec:
       containers:
