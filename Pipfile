@@ -1,6 +1,7 @@
 [[source]]
 url = "https://repo.huaweicloud.com/repository/pypi/simple"
 verify_ssl = true
+name = "huaweicloud-pypi"
 
 [packages]
 # base 
@@ -34,4 +35,4 @@ uWSGI = ">=2.0.19"
 django-debug-toolbar = "==3.2"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
