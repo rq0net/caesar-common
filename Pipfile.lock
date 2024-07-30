@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ec462022c68c809207335591f89d042004009bd2fbf1e5a58dce390458d075f0"
+            "sha256": "3bb9ea2e3d351b2dd64fb4d237cf6d8c24ac5ab7c558c0eb37e2223de35a64b8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -860,11 +860,12 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:5a0d9c6a2f332881a0153f629d8000118efd33255cfa802757924c53312c76da",
-                "sha256:98b4d786a12fadd34eabf69e8d014b84e5fc655981e4ff419994700434ace132"
+                "sha256:937a48c7cdb7a21eb53cd7f9b59e525503aa8abaf3584c730dc5f7a5bec3a650",
+                "sha256:a58a8fde0541dab0419750bcc521fbdf8585f6e5cb41909df3a472ef7b81ca95"
             ],
+            "index": "huaweicloud-pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==72.0.0"
+            "version": "==70.1.1"
         },
         "six": {
             "hashes": [
