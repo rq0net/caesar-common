@@ -5,7 +5,7 @@ name = "huaweicloud-pypi"
 
 [packages]
 # base
-setuptools = "==70.1.1"
+setuptools = "==70.3.0"
 pytz = "~=2021.1"
 utils2devops = ">=0.1.4"
 psycopg2-binary = "~=2.8.6"
