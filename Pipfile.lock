@@ -487,7 +487,7 @@
         },
         "django-jsoneditor": {
             "git": "https://github.com/martn/django-jsoneditor",
-            "ref": "108bc86b134bc926fa584064a132b5be1640cb5c"
+            "ref": null
         },
         "django-keycloak": {
             "git": "https://github.com/rq0net/django-keycloak",
@@ -576,11 +576,11 @@
         },
         "incremental": {
             "hashes": [
-                "sha256:a3717c20534499835555ba727b32ee087945ba9daaf23851471dfe3d1e3d1698",
-                "sha256:fdec6e533d06fd5497080fad4d8b78416c98801588551c9e620409940e8745f7"
+                "sha256:8cb2c3431530bec48ad70513931a760f446ad6c25e8333ca5d95e24b0ed7b8fe",
+                "sha256:fb4f1d47ee60efe87d4f6f0ebb5f70b9760db2b2574c59c8e8912be4ebd464c9"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==24.7.1"
+            "version": "==24.7.2"
         },
         "itypes": {
             "hashes": [
@@ -860,11 +860,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:032d42ee9fb536e33087fb66cac5f840eb9391ed05637b3f2a76a7c8fb477936",
-                "sha256:33874fdc59b3188304b2e7c80d9029097ea31627180896fb549c578ceb8a0855"
+                "sha256:5a0d9c6a2f332881a0153f629d8000118efd33255cfa802757924c53312c76da",
+                "sha256:98b4d786a12fadd34eabf69e8d014b84e5fc655981e4ff419994700434ace132"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==71.1.0"
+            "version": "==72.0.0"
         },
         "six": {
             "hashes": [
