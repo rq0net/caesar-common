@@ -31,8 +31,6 @@ caesar-user = {ref = "8bbbe47", git = "https://github.com/rq0net/caesar-user"}
 django-ajax-selects = {ref = "1c4c7f8", git = "https://github.com/rq0net/django-ajax-selects"}
 uWSGI = ">=2.0.19"
 django-celery-results = "~=2.0.1"
-elasticsearch-dsl = "==8.14.0"
-django-elasticsearch-dsl= "==8.0"
 
 [dev-packages]
 django-debug-toolbar = "==3.2"
