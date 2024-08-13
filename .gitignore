@@ -135,3 +135,10 @@ dmypy.json
 .idea.travis.yml
 .project
 .travis.yml
+
+# ignore poetry configs to not have branch based dependency
+pyproject.toml
+poetry.lock
+
+# collectstatic
+static/

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 __version__ = "1.0.0"
 
 here = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(here, 'README.rst')) as f:
+with open(os.path.join(here, 'README.md')) as f:
     long_description = f.read().strip()
 
 setup(
@@ -18,7 +18,7 @@ setup(
     license='Apache License 2.0',
     description='''
     Auth Public.
-    Read the README.rst for more information.
+    Read the README.md for more information.
     ''',
     packages=find_packages(),
     long_description=long_description,
