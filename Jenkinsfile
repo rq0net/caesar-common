@@ -106,7 +106,7 @@ pipeline {
         // Build Docker image using Kaniko
         container(name: 'kaniko', shell: '/busybox/sh') {
           script {
-            sh "executor -f ${env.WORKSPACE}/Dockerfile -c ${env.WORKSPACE} --skip-tls-verify --cache=true --destination='${imageTag}'"
+            sh "executor -f ${env.WORKSPACE}/Dockerfile -c ${env.WORKSPACE} --skip-tls-verify --cache=true --destination='${imageTag}' --build-arg ENVIRONMENT='${environment}'"
           }
         }
       }
