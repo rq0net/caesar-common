@@ -165,7 +165,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "common.rest.middleware.changeLog.ChangeLogMiddleware"
+    "common.rest.middleware.changeLog.ChangeLogMiddleware",
 ]
 
 ROOT_URLCONF = '%s.urls' % APP_NAME.lower()
@@ -428,4 +428,3 @@ INSTALLED_APPS += [
 ELASTICSEARCH_API_HOST=os.getenv('ELASTICSEARCH_API_HOST','')
 ELASTICSEARCH_API_KEY=os.getenv('ELASTICSEARCH_API_KEY','')
 LOGS_INDEX_V2 = os.getenv("LOGS_INDEX_V2", "change-logs-v2")
-

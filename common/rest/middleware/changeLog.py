@@ -1,6 +1,7 @@
 import uuid
-import requests
+import socket
 from contextvars import ContextVar
+import requests
 
 _request_ctx = ContextVar('current_request', default={})
 
