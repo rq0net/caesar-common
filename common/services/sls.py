@@ -52,7 +52,7 @@ class AliyunLog(object):
             res = self.client.get_logs(request)
             return res.get_logs() or []
         except Exception as e:
-            print(f"Error fetching logs: {e}")
+            logger.error(f"Error fetching logs: {e}")
             return []
 
     def fetch_banned_counts(self, host, filter_limit=10000, offset=0, reverse=False):
@@ -95,7 +95,7 @@ class AliyunLog(object):
             res = self.client.get_logs(request)
             return self._extract_count_from_response(res)
         except Exception as e:
-            print(f"Error fetching logs for query '{query}': {e}")
+            logger.error(f"Error fetching logs for query '{query}': {e}")
             return 0
 
     def _extract_count_from_response(self, response):
@@ -107,5 +107,5 @@ class AliyunLog(object):
                 return int(count)
             return 0
         except Exception as e:
-            print(f"Error extracting count from response: {e}")
+            logger.error(f"Error extracting count from response: {e}")
             return 0
