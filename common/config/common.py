@@ -379,8 +379,8 @@ PLAN_SERVER = os.getenv('PLAN_SERVER', "https://api.cwcdn.com/api/v1/plan/")
 
 
 ALIYUN = {
-    "ACCESS_KEY":  os.getenv('ALIYUN_ACCESS_KEY', ''),
-    "ACCESS_SECRET":  os.getenv('ALIYUN_ACCESS_SECRET', ''),
+    "ACCESS_KEY":  os.getenv('ALIYUN_LOG_ACCESS_KEY', ''),
+    "ACCESS_SECRET":  os.getenv('ALIYUN_LOG_ACCESS_SECRET', ''),
     "LOG_ENDPOINT": os.getenv('ALIYUN_LOG_ENDPOINT', ''),
     "LOG_PROJECT": os.getenv('ALIYUN_LOG_PROJECT', 'cdnnodes'),
     "LOG_LOGSTORE": os.getenv('ALIYUN_LOG_LOGSTORE', 'nginx'),
