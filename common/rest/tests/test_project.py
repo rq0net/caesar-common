@@ -18,15 +18,12 @@ class ViewTestCase(BaseTestCase):
 
     def setUp(self):
         """Define the test client and other test variables."""
-        # self.path = reverse('rest_login')
         self.username = "my_user"
         self.password = "my_passwd"
         self.user = User.objects.create(
             username=self.username, password=self.password)
         # Initialize client and force it to use authentication
         self.client = APIClient()
-        # self.client.force_authenticate(
-        #     user=self.user, token=self.user.auth_token)
         # self.url = reverse('user-detail', kwargs={'pk': self.user.pk})
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.user.auth_token}')
 
@@ -112,7 +109,6 @@ class ViewTestCase(BaseTestCase):
             data=json_file_content
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # data = response.data
         response = self.token_auth_get(
             reverse('api_file'),
             str(self.user.auth_token),

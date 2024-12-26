@@ -48,14 +48,6 @@ class FileAPI(APIView):
     """
     Example API to push a json image on the server and get it by a key.
     """
-    # def delete(self, request):
-    #     """
-    #     Required that the client is authenticated,
-    #     This method delete a file on the disk (NotImplemented)
-    #     :param request: the key corresponding to that file.
-    #     :return: status
-    #     """
-    #     raise NotImplemented()
 
     def get(self, request):
         """
@@ -91,12 +83,3 @@ class FileAPI(APIView):
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def put(self, request):
-    #     """
-    #     Required that the client is authenticated,
-    #     This method load a file from the json and update it on the disk
-    #     (NotImplemented)
-    #     :param request: the key and the new file in json Base64 format
-    #     :return: the key to get to that file after.
-    #     """
-    #     raise NotImplemented()

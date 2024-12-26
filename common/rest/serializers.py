@@ -13,31 +13,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'email', 'groups')
         read_only_fields = ('username', )
 
-    # def create(self, validated_data):
-    #     user = User(
-    #         email=validated_data['email'],
-    #         username=validated_data['username']
-    #     )
-    #     user.set_password(validated_data['password'])
-    #     user.save()
-    #     Token.objects.create(user=user)
-    #     return user
-
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
         fields = ('url', 'name')
-
-
-# class FileSerialised:
-#     """
-#     In case we want to store a list in db
-#     """
-#     class Meta:
-#         model = FileSerialised
-#         fields = ('filename', 'header', 'file')
-
 
 class FileToFilesystemSerializer(serializers.BaseSerializer):
     path = None
@@ -49,7 +29,6 @@ class FileToFilesystemSerializer(serializers.BaseSerializer):
         super(FileToFilesystemSerializer, self).__init__(*args, **kwargs)
 
     def create(self, validated_data):
-        # data = str(validated_data) #validated_data['file']
         # extension = validated_data['extension']
         filename = str(uuid.uuid1())
         # a way to know if the same file is already stored !!
@@ -71,4 +50,3 @@ class FileToFilesystemSerializer(serializers.BaseSerializer):
 
     def to_representation(self, obj):
         raise NotImplementedError('`to_representation()` must be implemented.')
-        # return obj.data

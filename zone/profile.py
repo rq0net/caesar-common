@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 
 # Create your models here.
 class ZoneProfile(ABC):
-    #user = models.OneToOneField(get_user_model(), related_name='profile', on_delete=models.CASCADE)
 
 #     cluster = models.CharField(
 #        max_length=50,
