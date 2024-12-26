@@ -14,7 +14,7 @@ setup(
     version=__version__,
     author='rq0net',
     author_email='rq0net@gmail.com',
-    url='http://github.com/rq0net/caesar-common',
+    url='https://github.com/rq0net/caesar-common',
     license='Apache License 2.0',
     description='''
     Auth Public.

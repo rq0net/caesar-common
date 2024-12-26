@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.views.decorators.http import require_safe
 
 from docs.version import __version__
 from common.rest.serializers import FileToFilesystemSerializer
@@ -18,6 +19,7 @@ https://www.django-rest-framework.org/api-guide/requests/#authenticators
 
 
 @api_view(['GET'])
+@require_safe
 def status_api(request):
     """
     For Icinga2 or Nagios. Function based.
