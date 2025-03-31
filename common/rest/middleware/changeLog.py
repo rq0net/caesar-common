@@ -1,7 +1,5 @@
 import uuid
-import socket
 from contextvars import ContextVar
-import requests
 
 _request_ctx = ContextVar('current_request', default={})
 
@@ -16,20 +14,18 @@ def add_to_request_context(key, value):
     context[key] = value
     _request_ctx.set(context)
 
-_ip_cache = None
-_IP_CHECK_URL = 'https://ifconfig.me/ip'
+def get_ip_address(request):
+    x_real_ip = request.META.get('HTTP_X_REAL_IP')
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
 
-def get_ip_address():
-    global _ip_cache
-    if _ip_cache is None:
-        try:
-            # Use requests to fetch the public IP address
-            response = requests.get(_IP_CHECK_URL)
-            response.raise_for_status()
-            _ip_cache = response.text.strip()
-        except requests.RequestException:
-            _ip_cache = "127.0.0.1"
-    return _ip_cache
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    elif x_real_ip:
+        ip = x_real_ip
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
 
 class ChangeLogMiddleware:
     def __init__(self, get_response):
@@ -39,7 +35,7 @@ class ChangeLogMiddleware:
         # Create a new dictionary for storing metadata
         request_metadata = {
             'request_id': str(uuid.uuid4()),
-            'ip_address': get_ip_address(),
+            'ip_address': get_ip_address(request),
             'request': request  # Add the request object to the metadata
         }
 
