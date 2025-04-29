@@ -236,7 +236,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 MEDIA_URL = '/media/'
 
-# # Sentry
 # SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 # if SENTRY_DSN is not None:
 #     import raven
@@ -365,7 +364,6 @@ if USE_KEYCLOAK is not None:
         r'^admin/',
         r'^docs/',
     ]
-#     KEYCLOAK_SKIP_SSL_VERIFY = True
     
     LOGIN_URL = 'keycloak_login'
 
@@ -411,3 +409,5 @@ INSTALLED_APPS += [
 ELASTICSEARCH_API_HOST=os.getenv('ELASTICSEARCH_API_HOST','')
 ELASTICSEARCH_API_KEY=os.getenv('ELASTICSEARCH_API_KEY','')
 LOGS_INDEX_V2 = os.getenv("LOGS_INDEX_V2", "change-logs-v2")
+TEST_ADMIN_USER = os.getenv("TEST_ADMIN_USER", 'admin')
+TEST_ADMIN_PASS = os.getenv("TEST_ADMIN_PASS", 'admin')
