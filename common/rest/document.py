@@ -15,6 +15,8 @@ class ChangeLogDocument(Document):
     api_endpoint = Text()
     user = Text()
     ip_address = Ip()
+    cname = Text()
+    account_id = Keyword()
 
     class Index:
         name = settings.LOGS_INDEX_V2
