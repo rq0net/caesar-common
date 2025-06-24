@@ -372,6 +372,7 @@ if USE_KEYCLOAK is not None:
 INSTALLED_APPS += ["django_slack",]
 SLACK_TOKEN=os.environ.get("SLACK_TOKEN", None)
 SLACK_CHANNEL=os.environ.get("SLACK_CHANNEL", '#test')
+SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL', '')
 
 PUSHER_SERVER = os.getenv('PUSHER_SERVER', "https://api.cwcdn.com/api/v1/pusher/")
 CMDB_SERVER = os.getenv('CMDB_SERVER', "https://api.cwcdn.com/api/v1/cmdb/")
@@ -387,14 +388,11 @@ ALIYUN = {
 }
 
 
-
-# Config for celery to recode the deploy result
 INSTALLED_APPS += [
     'common.rest',
-]
-# Config for celery to recode the deploy result
-INSTALLED_APPS += [
+    'zone',
     'django_celery_results',
+    'messagebus.apps.MessageBusConfig',
 ]
 
 
@@ -402,11 +400,6 @@ TELEGRAMBOT = {
     "TOKEN": os.getenv('TELEGRAMBOT_TOKEN', ''),
     "DEFAULT_CHAT_ID": os.getenv('TELEGRAMBOT_DEFAULT_CHAT_ID', ''),
 }
-
-# Config for celery to recode the deploy result
-INSTALLED_APPS += [
-    'zone',
-]
 
 ELASTICSEARCH_API_HOST=os.getenv('ELASTICSEARCH_API_HOST','')
 ELASTICSEARCH_API_KEY=os.getenv('ELASTICSEARCH_API_KEY','')

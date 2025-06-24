@@ -14,6 +14,9 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 class TGUser(models.Model):
     class Meta:
         db_table = 'common_tguser'
+        app_label = 'messagebus'
+        verbose_name = "TG User"
+        verbose_name_plural = "TG Users"
 
     name = models.TextField(unique=True, blank=True, null=True)
     value = models.TextField(default="", null=False)
